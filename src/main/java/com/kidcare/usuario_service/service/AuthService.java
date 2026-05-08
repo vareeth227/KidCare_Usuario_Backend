@@ -42,9 +42,10 @@ public class AuthService {
             throw new RuntimeException("El correo ya está registrado");
         }
 
-        // Busca el rol TUTOR
-        Rol rol = rolRepository.findByNombre("TUTOR")
-                .orElseThrow(() -> new RuntimeException("Rol TUTOR no encontrado"));
+        // Determina el rol: TUTOR por defecto, acepta DELEGADO
+        String nombreRol = "DELEGADO".equalsIgnoreCase(dto.getRolNombre()) ? "DELEGADO" : "TUTOR";
+        Rol rol = rolRepository.findByNombre(nombreRol)
+                .orElseThrow(() -> new RuntimeException("Rol " + nombreRol + " no encontrado"));
 
         // Crea el nuevo usuario
         Usuario usuario = new Usuario();
@@ -59,7 +60,7 @@ public class AuthService {
         usuarioRepository.save(usuario);
 
         // Genera y retorna el token JWT
-        String token = jwtUtil.generateToken(usuario.getEmail(), rol.getNombre());
+        String token = jwtUtil.generateToken(usuario.getEmail(), rol.getNombre(), usuario.getIdUsuario());
         return new AuthResponseDTO(token, usuario.getEmail(), rol.getNombre());
     }
 
@@ -81,7 +82,7 @@ public class AuthService {
         }
 
         // Genera y retorna el token JWT
-        String token = jwtUtil.generateToken(usuario.getEmail(), usuario.getRol().getNombre());
+        String token = jwtUtil.generateToken(usuario.getEmail(), usuario.getRol().getNombre(), usuario.getIdUsuario());
         return new AuthResponseDTO(token, usuario.getEmail(), usuario.getRol().getNombre());
     }
 

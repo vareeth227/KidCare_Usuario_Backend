@@ -3,6 +3,7 @@ package com.kidcare.usuario_service.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -27,12 +28,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 // Configura las rutas públicas y protegidas
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas públicas: registro y login
                         .requestMatchers("/api/auth/**").permitAll()
-                        // Rutas de recuperación de contraseña
                         .requestMatchers("/api/password/**").permitAll()
-                        // Todas las demás rutas requieren autenticación
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/menores").hasAnyRole("TUTOR", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/menores/**").hasAnyRole("TUTOR", "ADMIN")
+                        .requestMatchers("/api/delegados/**").hasAnyRole("TUTOR", "ADMIN")
                         .anyRequest().authenticated())
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin()))
                 // Sin estado de sesión, usamos JWT
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

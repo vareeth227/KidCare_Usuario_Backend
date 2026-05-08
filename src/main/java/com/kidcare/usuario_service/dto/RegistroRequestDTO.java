@@ -26,4 +26,7 @@ public class RegistroRequestDTO {
 
     // Aceptación de términos y condiciones (obligatorio por Ley 19.628)
     private Boolean aceptaTerminos;
+
+    // Rol solicitado: TUTOR (por defecto) o DELEGADO
+    private String rolNombre;
 }
