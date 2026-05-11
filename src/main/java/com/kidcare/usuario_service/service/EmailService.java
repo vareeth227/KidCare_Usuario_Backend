@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
-    @Autowired(required = false)
+    @Autowired
     private JavaMailSender mailSender;
 
     @Value("${spring.mail.username:}")
@@ -43,7 +43,7 @@ public class EmailService {
      * @param token        UUID de recuperación válido por 24 horas
      */
     public void enviarCorreoRecuperacion(String destinatario, String token) {
-        if (devMode || mailSender == null || remitente.isBlank()) {
+        if (devMode) {
             System.out.println("\n========================================");
             System.out.println("  [DEV] TOKEN DE RECUPERACIÓN");
             System.out.println("  Destinatario : " + destinatario);
@@ -73,7 +73,7 @@ public class EmailService {
     }
 
     public void enviarInvitacionDelegado(String destinatario, String token, Integer idMenor) {
-        if (devMode || mailSender == null || remitente.isBlank()) {
+        if (devMode) {
             System.out.println("\n========================================");
             System.out.println("  [DEV] INVITACIÓN A DELEGADO");
             System.out.println("  Destinatario : " + destinatario);
