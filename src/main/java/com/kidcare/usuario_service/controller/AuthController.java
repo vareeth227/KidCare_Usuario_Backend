@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 /**
  * Controlador REST para autenticación y gestión de cuentas de usuario.
@@ -59,9 +60,9 @@ public class AuthController {
      * @return 200 con mensaje de confirmación — 400 si el correo no existe
      */
     @PostMapping("/recuperar")
-    public ResponseEntity<String> recuperar(@Valid @RequestBody RecuperarPasswordRequestDTO dto) {
+    public ResponseEntity<Map<String, String>> recuperar(@Valid @RequestBody RecuperarPasswordRequestDTO dto) {
         authService.solicitarRecuperacion(dto);
-        return ResponseEntity.ok("Correo de recuperación enviado. Revisa tu bandeja de entrada.");
+        return ResponseEntity.ok(Map.of("mensaje", "Correo de recuperación enviado. Revisa tu bandeja de entrada."));
     }
 
     /**
@@ -72,9 +73,9 @@ public class AuthController {
      * @return 200 con mensaje de confirmación — 400 si el token es inválido o expiró
      */
     @PostMapping("/restablecer")
-    public ResponseEntity<String> restablecer(@Valid @RequestBody NuevaPasswordRequestDTO dto) {
+    public ResponseEntity<Map<String, String>> restablecer(@Valid @RequestBody NuevaPasswordRequestDTO dto) {
         authService.restablecerPassword(dto);
-        return ResponseEntity.ok("Contraseña restablecida correctamente.");
+        return ResponseEntity.ok(Map.of("mensaje", "Contraseña restablecida correctamente."));
     }
 
     /**
@@ -86,11 +87,11 @@ public class AuthController {
      * @return 200 con mensaje de confirmación — 400 si la contraseña actual es incorrecta o la nueva no cumple la política
      */
     @PostMapping("/cambiar")
-    public ResponseEntity<String> cambiarPassword(
+    public ResponseEntity<Map<String, String>> cambiarPassword(
             @Valid @RequestBody CambiarPasswordRequestDTO dto,
             Authentication authentication) {
         authService.cambiarPassword(authentication.getName(), dto.getPasswordActual(), dto.getPasswordNueva());
-        return ResponseEntity.ok("Contraseña actualizada correctamente.");
+        return ResponseEntity.ok(Map.of("mensaje", "Contraseña actualizada correctamente."));
     }
 
 }

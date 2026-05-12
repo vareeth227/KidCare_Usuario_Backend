@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 /**
  * Controlador REST para la gestión de apoderados vinculados a menores.
@@ -69,9 +70,10 @@ public class DelegadoController {
      * @return 200 con datos del apoderado, o 204 si no hay ninguno asignado
      */
     @GetMapping("/menor/{idMenor}")
-    public ResponseEntity<DelegadoResponseDTO> obtenerDelegado(@PathVariable Integer idMenor,
+    public ResponseEntity<List<DelegadoResponseDTO>> obtenerDelegado(@PathVariable Integer idMenor,
             Authentication authentication) {
         DelegadoResponseDTO dto = delegadoService.obtenerDelegado(authentication.getName(), idMenor);
-        return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.noContent().build();
+        List<DelegadoResponseDTO> lista = dto != null ? List.of(dto) : List.of();
+        return ResponseEntity.ok(lista);
     }
 }

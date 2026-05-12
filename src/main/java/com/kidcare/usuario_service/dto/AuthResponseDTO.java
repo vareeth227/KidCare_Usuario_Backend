@@ -13,12 +13,9 @@ import lombok.Data;
 @AllArgsConstructor
 public class AuthResponseDTO {
 
-    // Token JWT generado al autenticarse
     private String token;
-
-    // Correo del usuario autenticado
     private String email;
-
-    // Rol del usuario autenticado
     private String rol;
+    private Integer idUsuario;
+    private String nombreCompleto;
 }

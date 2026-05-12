@@ -156,10 +156,16 @@ public class DelegadoService {
         String fechaExp = link.getFechaExpiracion() != null
                 ? link.getFechaExpiracion().toString() : null;
 
-        return new DelegadoResponseDTO(
-                delegado.getIdUsuario(),
-                delegado.getEmail(),
-                delegado.getNombreCompleto(),
-                fechaExp);
+        DelegadoResponseDTO dto = new DelegadoResponseDTO();
+        dto.setIdUsuario(delegado.getIdUsuario());
+        dto.setIdDelegado(delegado.getIdUsuario());
+        dto.setEmail(delegado.getEmail());
+        dto.setEmailDelegado(delegado.getEmail());
+        dto.setNombreCompleto(delegado.getNombreCompleto());
+        dto.setNombreDelegado(delegado.getNombreCompleto());
+        dto.setEstado("ACTIVO");
+        dto.setDuracion(null);
+        dto.setFechaExpiracion(fechaExp);
+        return dto;
     }
 }
