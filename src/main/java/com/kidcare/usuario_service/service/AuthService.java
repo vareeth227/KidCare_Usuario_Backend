@@ -170,4 +170,27 @@ public class AuthService {
 
         usuarioRepository.save(usuario);
     }
+
+    /**
+     * Cambia la contraseña del usuario autenticado, validando la contraseña actual.
+     *
+     * @param email          email del usuario autenticado (del JWT)
+     * @param passwordActual contraseña vigente para verificación
+     * @param passwordNueva  nueva contraseña; debe cumplir la política de seguridad
+     * @throws RuntimeException si la contraseña actual es incorrecta o la nueva no cumple la política
+     */
+    public void cambiarPassword(String email, String passwordActual, String passwordNueva) {
+
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(passwordActual, usuario.getPasswordHash())) {
+            throw new RuntimeException("La contraseña actual es incorrecta");
+        }
+
+        validarPassword(passwordNueva);
+
+        usuario.setPasswordHash(passwordEncoder.encode(passwordNueva));
+        usuarioRepository.save(usuario);
+    }
 }

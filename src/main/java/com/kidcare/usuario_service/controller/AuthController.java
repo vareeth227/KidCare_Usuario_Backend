@@ -5,6 +5,7 @@ import com.kidcare.usuario_service.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -74,6 +75,22 @@ public class AuthController {
     public ResponseEntity<String> restablecer(@Valid @RequestBody NuevaPasswordRequestDTO dto) {
         authService.restablecerPassword(dto);
         return ResponseEntity.ok("Contraseña restablecida correctamente.");
+    }
+
+    /**
+     * Cambia la contraseña del usuario autenticado.
+     * Requiere JWT válido; valida la contraseña actual antes de aplicar el cambio.
+     *
+     * @param dto             contraseña actual y nueva contraseña
+     * @param authentication  contexto de seguridad con el email del usuario
+     * @return 200 con mensaje de confirmación — 400 si la contraseña actual es incorrecta o la nueva no cumple la política
+     */
+    @PostMapping("/cambiar")
+    public ResponseEntity<String> cambiarPassword(
+            @Valid @RequestBody CambiarPasswordRequestDTO dto,
+            Authentication authentication) {
+        authService.cambiarPassword(authentication.getName(), dto.getPasswordActual(), dto.getPasswordNueva());
+        return ResponseEntity.ok("Contraseña actualizada correctamente.");
     }
 
     /**
