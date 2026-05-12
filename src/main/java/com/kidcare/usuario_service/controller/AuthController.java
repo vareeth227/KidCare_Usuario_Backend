@@ -93,15 +93,4 @@ public class AuthController {
         return ResponseEntity.ok("Contraseña actualizada correctamente.");
     }
 
-    /**
-     * Captura excepciones de negocio y las convierte en respuestas 400 Bad Request.
-     * Evita que errores como "correo no registrado" expongan un 500 al cliente.
-     *
-     * @param e excepción lanzada por {@link AuthService}
-     * @return 400 con el mensaje de error descriptivo
-     */
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleError(RuntimeException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
-    }
 }
