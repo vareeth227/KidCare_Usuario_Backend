@@ -2,6 +2,7 @@ package com.kidcare.usuario_service.service;
 
 import com.kidcare.usuario_service.dto.AuthResponseDTO;
 import com.kidcare.usuario_service.dto.LoginRequestDTO;
+import com.kidcare.usuario_service.dto.NuevaPasswordRequestDTO;
 import com.kidcare.usuario_service.dto.RegistroRequestDTO;
 import com.kidcare.usuario_service.model.Rol;
 import com.kidcare.usuario_service.model.Usuario;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -262,5 +264,79 @@ class AuthServiceTest {
         assertThatThrownBy(() -> authService.cambiarPassword("ghost@test.com", "x", "Nueva@1"))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("no encontrado");
+    }
+
+    // ─── restablecerPassword ──────────────────────────────────────────────────
+
+    @Test
+    void restablecerPassword_tokenValido_actualizaHash() {
+        NuevaPasswordRequestDTO dto = new NuevaPasswordRequestDTO();
+        dto.setToken("token-uuid-valido");
+        dto.setNuevaPassword("Nueva@456");
+
+        Usuario usuario = new Usuario();
+        usuario.setTokenRecuperacion("token-uuid-valido");
+        usuario.setFechaExpiracionToken(LocalDateTime.now().plusMinutes(10));
+
+        when(usuarioRepository.findByTokenRecuperacion("token-uuid-valido"))
+                .thenReturn(Optional.of(usuario));
+        when(passwordEncoder.encode("Nueva@456")).thenReturn("hashNuevo");
+
+        authService.restablecerPassword(dto);
+
+        assertThat(usuario.getPasswordHash()).isEqualTo("hashNuevo");
+        assertThat(usuario.getTokenRecuperacion()).isNull();
+        assertThat(usuario.getFechaExpiracionToken()).isNull();
+        verify(usuarioRepository).save(usuario);
+    }
+
+    @Test
+    void restablecerPassword_tokenExpirado_lanzaExcepcion() {
+        NuevaPasswordRequestDTO dto = new NuevaPasswordRequestDTO();
+        dto.setToken("token-expirado");
+        dto.setNuevaPassword("Nueva@456");
+
+        Usuario usuario = new Usuario();
+        usuario.setTokenRecuperacion("token-expirado");
+        usuario.setFechaExpiracionToken(LocalDateTime.now().minusMinutes(5));
+
+        when(usuarioRepository.findByTokenRecuperacion("token-expirado"))
+                .thenReturn(Optional.of(usuario));
+
+        assertThatThrownBy(() -> authService.restablecerPassword(dto))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("expirado");
+    }
+
+    @Test
+    void restablecerPassword_tokenInvalido_lanzaExcepcion() {
+        NuevaPasswordRequestDTO dto = new NuevaPasswordRequestDTO();
+        dto.setToken("token-inexistente");
+        dto.setNuevaPassword("Nueva@456");
+
+        when(usuarioRepository.findByTokenRecuperacion("token-inexistente"))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authService.restablecerPassword(dto))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("inválido");
+    }
+
+    @Test
+    void restablecerPassword_nuevaPasswordInvalida_lanzaExcepcion() {
+        NuevaPasswordRequestDTO dto = new NuevaPasswordRequestDTO();
+        dto.setToken("token-ok");
+        dto.setNuevaPassword("sinmayuscula1");
+
+        Usuario usuario = new Usuario();
+        usuario.setTokenRecuperacion("token-ok");
+        usuario.setFechaExpiracionToken(LocalDateTime.now().plusMinutes(10));
+
+        when(usuarioRepository.findByTokenRecuperacion("token-ok"))
+                .thenReturn(Optional.of(usuario));
+
+        assertThatThrownBy(() -> authService.restablecerPassword(dto))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("mayúscula");
     }
 }
