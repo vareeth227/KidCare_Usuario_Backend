@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/invitaciones")
@@ -17,15 +18,15 @@ public class InvitacionController {
     private InvitacionService invitacionService;
 
     @PostMapping("/enviar")
-    public ResponseEntity<String> enviar(@Valid @RequestBody InvitacionRequestDTO dto,
+    public ResponseEntity<Map<String, String>> enviar(@Valid @RequestBody InvitacionRequestDTO dto,
             Authentication authentication) {
         invitacionService.enviarInvitacion(authentication.getName(), dto);
-        return ResponseEntity.ok("Invitación enviada correctamente");
+        return ResponseEntity.ok(Map.of("mensaje", "Invitación enviada correctamente"));
     }
 
     @PostMapping("/completar")
-    public ResponseEntity<String> completar(@Valid @RequestBody CompletarRegistroDTO dto) {
+    public ResponseEntity<Map<String, String>> completar(@Valid @RequestBody CompletarRegistroDTO dto) {
         invitacionService.completarRegistro(dto);
-        return ResponseEntity.ok("Registro completado. Ya puedes iniciar sesión.");
+        return ResponseEntity.ok(Map.of("mensaje", "Registro completado. Ya puedes iniciar sesión."));
     }
 }
