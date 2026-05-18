@@ -9,9 +9,9 @@ public class CompletarRegistroDTO {
     @NotBlank(message = "El token es obligatorio")
     private String token;
 
-    @NotBlank(message = "El nombre completo es obligatorio")
+    // Opcional para usuarios existentes (Ruta 2: vincular)
     private String nombreCompleto;
 
-    @NotBlank(message = "La contraseña es obligatoria")
+    // Opcional para usuarios existentes (Ruta 2: vincular)
     private String password;
 }
