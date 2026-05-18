@@ -72,6 +72,13 @@ public class MenorController {
         return ResponseEntity.ok(menorService.editarMenor(id, dto, authentication.getName()));
     }
 
+    // GET /api/menores/buscar?nombre=... — busca menores del tutor por nombre (CU004)
+    @GetMapping("/buscar")
+    public ResponseEntity<List<MenorResponseDTO>> buscar(@RequestParam String nombre,
+            Authentication authentication) {
+        return ResponseEntity.ok(menorService.buscarMenores(authentication.getName(), nombre));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<MenorResponseDTO> obtenerPorId(@PathVariable Integer id,
             Authentication authentication) {

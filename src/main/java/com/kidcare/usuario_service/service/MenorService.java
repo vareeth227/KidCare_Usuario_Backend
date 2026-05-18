@@ -191,6 +191,23 @@ public class MenorService {
         usuarioMenorRepository.save(usuarioMenor);
     }
 
+    // Busca menores del usuario autenticado cuyo nombre contenga el texto indicado (CU004)
+    public List<MenorResponseDTO> buscarMenores(String emailUsuario, String nombre) {
+
+        Usuario usuario = usuarioRepository.findByEmail(emailUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        List<Integer> ids = usuarioMenorRepository.findByIdIdUsuario(usuario.getIdUsuario())
+                .stream()
+                .map(um -> um.getMenor().getIdMenor())
+                .collect(Collectors.toList());
+
+        return menorRepository.findByNombreContainingIgnoreCaseAndIdMenorIn(nombre, ids)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
     // Convierte una entidad Menor a MenorResponseDTO
     private MenorResponseDTO mapToDTO(Menor menor) {
         MenorResponseDTO dto = new MenorResponseDTO();
