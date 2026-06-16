@@ -87,6 +87,15 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("mensaje", "Usuario eliminado correctamente"));
     }
 
+    // EP3: Crear menor y vincularlo directamente a un usuario
+    @PostMapping("/usuarios/{idUsuario}/menores")
+    public ResponseEntity<MenorResponseDTO> crearMenorParaUsuario(@PathVariable Integer idUsuario,
+            @Valid @RequestBody MenorRequestDTO dto,
+            Authentication authentication) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(adminService.crearMenorParaUsuario(idUsuario, dto, obtenerIdAdmin(authentication)));
+    }
+
     // EP3: Listar todos los menores del sistema
     @GetMapping("/menores")
     public ResponseEntity<List<MenorResponseDTO>> listarMenores() {

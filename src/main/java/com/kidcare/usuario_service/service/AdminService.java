@@ -106,6 +106,28 @@ public class AdminService {
         auditoriaService.registrarAccion(idAdmin, "MODIFICAR_ROL", "USUARIO", idUsuario);
     }
 
+    @Transactional
+    public MenorResponseDTO crearMenorParaUsuario(Integer idUsuario, MenorRequestDTO dto, Integer idAdmin) {
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Menor menor = new Menor();
+        menor.setNombre(dto.getNombre());
+        menor.setFechaNacimiento(dto.getFechaNacimiento());
+        menor.setSexo(dto.getSexo());
+        menor.setEmoji(dto.getEmoji());
+        menorRepository.save(menor);
+        UsuarioMenorId pid = new UsuarioMenorId();
+        pid.setIdUsuario(idUsuario);
+        pid.setIdMenor(menor.getIdMenor());
+        UsuarioMenor vinculo = new UsuarioMenor();
+        vinculo.setId(pid);
+        vinculo.setUsuario(usuario);
+        vinculo.setMenor(menor);
+        usuarioMenorRepository.save(vinculo);
+        auditoriaService.registrarAccion(idAdmin, "CREAR", "MENOR", menor.getIdMenor());
+        return mapToMenorDTO(menor);
+    }
+
     public List<MenorResponseDTO> listarMenores() {
         return menorRepository.findAll().stream().map(this::mapToMenorDTO).collect(Collectors.toList());
     }
