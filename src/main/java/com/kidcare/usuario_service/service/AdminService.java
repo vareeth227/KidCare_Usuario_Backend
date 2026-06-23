@@ -26,7 +26,7 @@ public class AdminService {
     @Autowired private PasswordEncoder passwordEncoder;
 
     public List<AdminUsuarioResponseDTO> listarUsuarios() {
-        return usuarioRepository.findAll().stream().map(this::mapToAdminDTO).collect(Collectors.toList());
+        return usuarioRepository.findByEliminadoFalse().stream().map(this::mapToAdminDTO).collect(Collectors.toList());
     }
 
     public AdminUsuarioResponseDTO crearUsuario(CrearUsuarioAdminDTO dto, Integer idAdmin) {
@@ -65,8 +65,8 @@ public class AdminService {
     @Transactional
     public void eliminarUsuario(Integer idUsuario, Integer idAdmin) {
         if (idUsuario.equals(idAdmin)) throw new RuntimeException("No puedes eliminar tu propia cuenta");
-        usuarioRepository.findById(idUsuario).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        auditoriaRepository.deleteAll(auditoriaRepository.findByUsuarioIdUsuario(idUsuario));
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         invitacionRepository.deleteAll(invitacionRepository.findByIdTutor(idUsuario));
         List<UsuarioMenor> vinculos = usuarioMenorRepository.findByIdIdUsuario(idUsuario);
         List<Integer> menoresHuerfanos = new ArrayList<>();
@@ -78,7 +78,10 @@ public class AdminService {
         invitacionRepository.deleteAll(invitacionRepository.findByIdMenorIn(menoresHuerfanos));
         usuarioMenorRepository.deleteAll(vinculos);
         menoresHuerfanos.forEach(menorRepository::deleteById);
-        usuarioRepository.deleteById(idUsuario);
+        usuario.setActivo(false);
+        usuario.setEliminado(true);
+        usuarioRepository.save(usuario);
+        auditoriaService.registrarAccion(idAdmin, "ELIMINAR", "USUARIO", idUsuario);
     }
 
     public void habilitarCuenta(Integer idUsuario, Integer idAdmin) {

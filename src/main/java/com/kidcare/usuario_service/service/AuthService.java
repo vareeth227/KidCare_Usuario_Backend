@@ -113,8 +113,12 @@ public class AuthService {
         Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new RuntimeException("Credenciales incorrectas"));
 
+        if (Boolean.TRUE.equals(usuario.getEliminado())) {
+            throw new RuntimeException("CUENTA_ELIMINADA");
+        }
+
         if (!usuario.getActivo()) {
-            throw new RuntimeException("La cuenta está desactivada");
+            throw new RuntimeException("CUENTA_DESHABILITADA");
         }
 
         if (!passwordEncoder.matches(dto.getPassword(), usuario.getPasswordHash())) {

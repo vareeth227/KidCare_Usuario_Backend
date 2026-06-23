@@ -51,6 +51,10 @@ public class Usuario {
     @Column(name = "activo", nullable = false)
     private Boolean activo = true;
 
+    // Indica si la cuenta fue eliminada por el administrador (soft-delete)
+    @Column(name = "eliminado", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean eliminado = false;
+
     // Fecha de registro en el sistema
     @Column(name = "fechaCreacion", nullable = false)
     private LocalDate fechaCreacion;
